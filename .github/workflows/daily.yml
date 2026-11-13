@@ -1,0 +1,64 @@
+name: USA YT Leads
+on:
+  schedule:
+    # 3 runs a day (UTC). Each run uses about a third of the daily YouTube quota; GitHub may start them a few minutes late.
+    - cron: '30 3 * * *'
+    - cron: '30 11 * * *'
+    - cron: '30 19 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: usa-yt-leads-single-writer
+  cancel-in-progress: false
+jobs:
+  collect:
+    runs-on: ubuntu-24.04 # Supported by the pinned Playwright/Scrapling browser stack.
+    timeout-minutes: 130 # the script stops itself at max_runtime_minutes (100)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install
+        run: pip install -r requirements.txt
+      # No --with-deps: it runs apt-get, which failed (DNS to azure.archive.ubuntu.com) while every needed library was already installed.
+      # Browser steps never block lead collection: the code already continues without a browser when one is unavailable.
+      - name: Install Chromium
+        continue-on-error: true
+        run: for i in 1 2 3; do python -m playwright install chromium && break || sleep 15; done
+      - name: Verify Chromium and Scrapling
+        continue-on-error: true
+        run: python -m src.browser_smoke
+      - name: Verify Scrapling DynamicFetcher
+        continue-on-error: true
+        run: python -m src.dynamic_smoke
+      - name: Verify public panel behavior
+        continue-on-error: true
+        run: python -m src.panel_smoke
+      - name: Validate configuration
+        run: python run.py --check-config
+      - name: Tests
+        continue-on-error: true # a failing developer test must never stop lead collection
+        run: python -m unittest discover -s tests -v
+      - name: Check repository secrets
+        run: python -m src.preflight
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      - name: Collect leads
+        run: python run.py
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+      - name: Preserve private run reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lead-run-${{ github.run_id }}
+          path: output/
+          if-no-files-found: ignore
+          retention-days: 7
