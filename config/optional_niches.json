@@ -1,0 +1,103 @@
+[
+  {
+    "name": "Solar And Energy Businesses",
+    "queries": [
+      "solar business owner advice",
+      "solar installer explains"
+    ],
+    "signals": [
+      "solar installation",
+      "solar business",
+      "solar panels",
+      "energy consultant"
+    ]
+  },
+  {
+    "name": "Language Education",
+    "queries": [
+      "english teacher online course",
+      "language teacher business"
+    ],
+    "signals": [
+      "language learning",
+      "english teacher",
+      "language teacher",
+      "language coaching"
+    ]
+  },
+  {
+    "name": "Music Education",
+    "queries": [
+      "music teacher online course",
+      "vocal coach lesson"
+    ],
+    "signals": [
+      "music teacher",
+      "vocal coach",
+      "singing lesson",
+      "music production course"
+    ]
+  },
+  {
+    "name": "Logistics And Supply Chain",
+    "queries": [
+      "logistics business owner advice",
+      "supply chain consultant explains"
+    ],
+    "signals": [
+      "logistics",
+      "supply chain",
+      "freight brokerage",
+      "freight broker"
+    ]
+  },
+  {
+    "name": "Boat Reviews",
+    "queries": [
+      "boat reviewer buying advice",
+      "yacht review presenter"
+    ],
+    "signals": [
+      "boat review",
+      "yacht review",
+      "boat buying"
+    ]
+  },
+  {
+    "name": "Travel Advice And Services",
+    "queries": [
+      "travel advisor tips talking head",
+      "travel agent advice youtube"
+    ],
+    "signals": [
+      "travel advisor",
+      "travel agent",
+      "travel advice"
+    ]
+  },
+  {
+    "name": "Pet Care Education",
+    "queries": [
+      "veterinarian explains pet health",
+      "dog trainer education talking head"
+    ],
+    "signals": [
+      "veterinarian",
+      "pet care",
+      "dog trainer",
+      "dog training"
+    ]
+  },
+  {
+    "name": "Gardening Education",
+    "queries": [
+      "gardening expert explains",
+      "horticulture educator talking head"
+    ],
+    "signals": [
+      "gardening",
+      "horticulture",
+      "garden advice"
+    ]
+  }
+]

@@ -1,0 +1,563 @@
+[
+  {
+    "name": "Tech Reviews",
+    "topics": [
+      "Technology Reviews",
+      "Smartphone Reviews",
+      "Laptop And Computer Reviews",
+      "PC Hardware Reviews",
+      "Gaming Hardware Reviews",
+      "Audio Equipment Reviews",
+      "Camera And Video Gear Reviews",
+      "Smart Home Reviews",
+      "Wearable Technology Reviews",
+      "Creator Equipment Reviews"
+    ],
+    "queries": [
+      "tech reviewer gadgets review",
+      "technology reviews talking head",
+      "smartphone reviewer comparison",
+      "iphone android review discussion",
+      "laptop reviews comparison",
+      "computer reviewer buying advice",
+      "pc hardware reviewer benchmarks",
+      "graphics card review discussion",
+      "gaming monitor reviewer",
+      "gaming peripherals review discussion",
+      "headphone reviewer discussion",
+      "speakers amplifier review",
+      "camera reviewer comparison",
+      "video camera lens review",
+      "smart home reviewer",
+      "home automation product review",
+      "smartwatch reviewer comparison",
+      "fitness tracker review discussion",
+      "youtube studio equipment review",
+      "microphone lighting review creator"
+    ],
+    "signals": [
+      "tech review",
+      "technology review",
+      "gadget review",
+      "smartphone review",
+      "phone review",
+      "iphone review",
+      "android review",
+      "laptop review",
+      "computer review",
+      "macbook review",
+      "graphics card",
+      "pc hardware",
+      "cpu review",
+      "gpu review",
+      "gaming monitor",
+      "gaming peripherals",
+      "gaming headset review",
+      "headphone review",
+      "speaker review",
+      "amplifier review",
+      "audio equipment",
+      "camera review",
+      "lens review",
+      "video gear review",
+      "smart home",
+      "home automation review",
+      "security camera review",
+      "smartwatch review",
+      "fitness tracker review",
+      "wearable technology",
+      "studio equipment",
+      "microphone review",
+      "lighting review",
+      "creator gear"
+    ]
+  },
+  {
+    "name": "Software And AI",
+    "topics": [
+      "Software Reviews",
+      "Productivity Apps Reviews",
+      "AI And Automation"
+    ],
+    "queries": [
+      "business software reviewer",
+      "software tools review tutorial",
+      "productivity apps review",
+      "note taking apps comparison",
+      "ai automation business",
+      "ai agency founder"
+    ],
+    "signals": [
+      "software review",
+      "software comparison",
+      "software tools review",
+      "productivity app",
+      "note taking app",
+      "task management app",
+      "automation",
+      "artificial intelligence",
+      "ai tools"
+    ]
+  },
+  {
+    "name": "Cars And Vehicles",
+    "topics": [
+      "Car Reviews",
+      "Electric Vehicle Reviews",
+      "Motorcycle Reviews",
+      "RV And Camper Reviews",
+      "Automotive Education"
+    ],
+    "queries": [
+      "car reviewer buying advice",
+      "car review presenter comparison",
+      "electric vehicle reviewer",
+      "electric car review comparison",
+      "motorcycle reviewer buying advice",
+      "motorcycle review presenter",
+      "rv reviewer buying advice",
+      "camper review discussion",
+      "auto repair business owner advice",
+      "automotive expert explains"
+    ],
+    "signals": [
+      "car review",
+      "car comparison",
+      "automotive review",
+      "vehicle review",
+      "electric vehicle",
+      "electric car review",
+      "ev review",
+      "motorcycle review",
+      "motorbike review",
+      "motorcycle comparison",
+      "rv review",
+      "camper review",
+      "motorhome review",
+      "auto repair",
+      "automotive",
+      "car detailing",
+      "mechanic"
+    ]
+  },
+  {
+    "name": "Business And Entrepreneurship",
+    "topics": [
+      "Business And Entrepreneurship",
+      "Business Acquisitions",
+      "Franchise Businesses",
+      "Leadership And Management"
+    ],
+    "queries": [
+      "business advice entrepreneur",
+      "scaling a business",
+      "buying a small business advice",
+      "business acquisition entrepreneur",
+      "franchise consultant advice",
+      "franchise owner business",
+      "leadership coach advice",
+      "management training for leaders"
+    ],
+    "signals": [
+      "entrepreneur",
+      "business",
+      "ceo",
+      "business acquisition",
+      "buying a business",
+      "buy a business",
+      "acquisition entrepreneur",
+      "franchise",
+      "franchising",
+      "franchise consultant",
+      "leadership",
+      "management training",
+      "team management"
+    ]
+  },
+  {
+    "name": "Real Estate",
+    "topics": [
+      "Real Estate"
+    ],
+    "queries": [
+      "real estate investing advice",
+      "realtor business tips"
+    ],
+    "signals": [
+      "real estate",
+      "realtor",
+      "rental property"
+    ]
+  },
+  {
+    "name": "Coaching And Careers",
+    "topics": [
+      "Courses And Coaching",
+      "Career Coaching",
+      "Recruiting And Human Resources"
+    ],
+    "queries": [
+      "coaching business",
+      "online course creator",
+      "career coach interview advice",
+      "executive coaching",
+      "recruiting agency owner advice",
+      "human resources consultant"
+    ],
+    "signals": [
+      "coaching",
+      "online course",
+      "mentorship",
+      "career",
+      "interview",
+      "executive coach",
+      "recruiting",
+      "human resources",
+      "talent acquisition"
+    ]
+  },
+  {
+    "name": "Marketing And Creator Businesses",
+    "topics": [
+      "Marketing And Agencies",
+      "Creator Businesses"
+    ],
+    "queries": [
+      "marketing agency owner",
+      "sales training",
+      "youtube creator business advice",
+      "content creator business coaching"
+    ],
+    "signals": [
+      "marketing",
+      "agency",
+      "sales training",
+      "creator business",
+      "youtube strategy",
+      "content creator",
+      "creator economy"
+    ]
+  },
+  {
+    "name": "Startups And SaaS",
+    "topics": [
+      "SaaS And Startups"
+    ],
+    "queries": [
+      "saas founder",
+      "bootstrapped startup"
+    ],
+    "signals": [
+      "saas",
+      "startup",
+      "founder"
+    ]
+  },
+  {
+    "name": "Finance And Investing",
+    "topics": [
+      "Personal Finance",
+      "Trading And Investing",
+      "Accounting And Tax"
+    ],
+    "queries": [
+      "personal finance advice",
+      "wealth building",
+      "stock trading strategy",
+      "investing education",
+      "cpa tax advice",
+      "accounting business advice"
+    ],
+    "signals": [
+      "personal finance",
+      "wealth",
+      "retirement",
+      "trading",
+      "investing",
+      "stocks",
+      "accounting",
+      "tax",
+      "cpa"
+    ]
+  },
+  {
+    "name": "Ecommerce",
+    "topics": [
+      "Ecommerce"
+    ],
+    "queries": [
+      "ecommerce business owner",
+      "shopify business advice"
+    ],
+    "signals": [
+      "ecommerce",
+      "shopify",
+      "amazon fba"
+    ]
+  },
+  {
+    "name": "Technology Education",
+    "topics": [
+      "Technology Education",
+      "Cybersecurity Education",
+      "Data And Analytics Education",
+      "Cloud And IT Consulting"
+    ],
+    "queries": [
+      "programming instructor",
+      "software development tutorial",
+      "cybersecurity instructor training",
+      "cybersecurity consultant advice",
+      "data analytics instructor",
+      "data science education consultant",
+      "cloud consulting business",
+      "cloud computing instructor"
+    ],
+    "signals": [
+      "programming",
+      "developer",
+      "coding",
+      "cybersecurity",
+      "information security",
+      "penetration testing",
+      "data analytics",
+      "data science",
+      "business intelligence",
+      "cloud computing",
+      "cloud consulting",
+      "devops",
+      "it consulting"
+    ]
+  },
+  {
+    "name": "Business Podcasts",
+    "topics": [
+      "Business Podcasts"
+    ],
+    "queries": [
+      "business podcast founder interview",
+      "entrepreneur podcast interview"
+    ],
+    "signals": [
+      "business podcast",
+      "entrepreneur podcast",
+      "founder interview"
+    ]
+  },
+  {
+    "name": "Fitness And Nutrition",
+    "topics": [
+      "Fitness Coaching",
+      "Nutrition Education"
+    ],
+    "queries": [
+      "online fitness coach business",
+      "nutrition coaching",
+      "registered dietitian explains",
+      "nutrition expert talking head"
+    ],
+    "signals": [
+      "fitness",
+      "nutrition",
+      "personal trainer",
+      "dietitian",
+      "nutrition education",
+      "nutritionist"
+    ]
+  },
+  {
+    "name": "Health Professionals",
+    "topics": [
+      "Medical Education",
+      "Dental Education",
+      "Mental Health Education"
+    ],
+    "queries": [
+      "physician explains health",
+      "doctor patient education talking head",
+      "dentist explains treatment",
+      "dental practice patient education",
+      "licensed therapist explains",
+      "psychologist mental health education"
+    ],
+    "signals": [
+      "physician",
+      "medical education",
+      "doctor explains",
+      "dentist",
+      "dental care",
+      "dental practice",
+      "therapist",
+      "psychologist",
+      "mental health education"
+    ]
+  },
+  {
+    "name": "Beauty And Style",
+    "topics": [
+      "Beauty And Skincare Education",
+      "Style And Grooming Education"
+    ],
+    "queries": [
+      "skincare expert product review",
+      "beauty reviewer talking head",
+      "mens style advice talking head",
+      "grooming product reviewer"
+    ],
+    "signals": [
+      "skincare",
+      "beauty review",
+      "cosmetic review",
+      "mens style",
+      "grooming",
+      "style advice",
+      "fashion advice"
+    ]
+  },
+  {
+    "name": "Home And Design",
+    "topics": [
+      "Home Improvement",
+      "Architecture And Interior Design",
+      "Design Education"
+    ],
+    "queries": [
+      "home renovation contractor advice",
+      "construction business owner",
+      "interior designer business advice",
+      "architect explains design",
+      "ux design instructor",
+      "graphic design business advice"
+    ],
+    "signals": [
+      "renovation",
+      "contractor",
+      "construction",
+      "interior design",
+      "interior designer",
+      "architecture",
+      "architect",
+      "ux design",
+      "graphic design",
+      "design agency"
+    ]
+  },
+  {
+    "name": "Home And Equipment Reviews",
+    "topics": [
+      "Home Appliance Reviews",
+      "Kitchen Equipment Reviews",
+      "Coffee Equipment Reviews",
+      "Tools And Workshop Reviews"
+    ],
+    "queries": [
+      "home appliance reviewer comparison",
+      "vacuum cleaner review presenter",
+      "kitchen equipment review presenter",
+      "cookware review comparison",
+      "espresso machine reviewer",
+      "coffee grinder review comparison",
+      "power tool reviewer comparison",
+      "workshop tools buying advice"
+    ],
+    "signals": [
+      "appliance review",
+      "vacuum review",
+      "washing machine review",
+      "kitchen equipment",
+      "cookware review",
+      "kitchen appliance review",
+      "espresso machine",
+      "coffee grinder",
+      "coffee equipment review",
+      "tool review",
+      "power tools",
+      "workshop tools"
+    ]
+  },
+  {
+    "name": "Outdoor And Sports Reviews",
+    "topics": [
+      "Outdoor Gear Reviews",
+      "Sports Equipment Reviews"
+    ],
+    "queries": [
+      "outdoor gear reviewer",
+      "camping equipment review presenter",
+      "golf equipment reviewer",
+      "sports equipment review comparison"
+    ],
+    "signals": [
+      "outdoor gear",
+      "camping gear",
+      "hiking gear review",
+      "golf club review",
+      "sports equipment",
+      "tennis racket review"
+    ]
+  },
+  {
+    "name": "Photography Businesses",
+    "topics": [
+      "Photography Education"
+    ],
+    "queries": [
+      "photography business advice",
+      "wedding photography education"
+    ],
+    "signals": [
+      "photography",
+      "photographer"
+    ]
+  },
+  {
+    "name": "Professional Services",
+    "topics": [
+      "Professional Services"
+    ],
+    "queries": [
+      "lawyer explains",
+      "mortgage broker advice"
+    ],
+    "signals": [
+      "lawyer",
+      "mortgage",
+      "attorney",
+      "insurance"
+    ]
+  },
+  {
+    "name": "Gaming Creators",
+    "topics": [
+      "Gaming Creators"
+    ],
+    "queries": [
+      "gaming commentary discussion",
+      "game review analysis",
+      "gaming industry discussion"
+    ],
+    "signals": [
+      "game review",
+      "gaming commentary",
+      "gaming industry",
+      "game analysis"
+    ]
+  },
+  {
+    "name": "Streaming Creators",
+    "topics": [
+      "Streaming Creators"
+    ],
+    "queries": [
+      "streamer commentary discussion",
+      "streaming creator podcast",
+      "streaming setup advice"
+    ],
+    "signals": [
+      "streamer",
+      "streaming setup",
+      "streaming creator",
+      "twitch"
+    ]
+  }
+]
