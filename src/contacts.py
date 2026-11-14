@@ -159,14 +159,15 @@ def people_from_structured(data, source):
                 persons = data.get(field,[])
                 for person in persons if isinstance(persons,list) else [persons]:
                     if isinstance(person,dict) and person.get('name'):
-                        designation = person.get('jobTitle') or role
+                        title = person.get('jobTitle') or role
+                        designation = ', '.join(map(str, title)) if isinstance(title, list) else title
                         if designation:
                             found.append(dict(full_name=person['name'],first_name=person.get('givenName',''),
                                 designation=designation,source=source))
         if 'Person' in kinds and data.get('name') and data.get('jobTitle'):
             if re.search(r'founder|chief executive|\bceo\b|manager|team lead',str(data['jobTitle']),re.I):
                 found.append(dict(full_name=data['name'],first_name=data.get('givenName',''),
-                    designation=data['jobTitle'],source=source))
+                    designation=', '.join(map(str, data['jobTitle'])) if isinstance(data['jobTitle'], list) else data['jobTitle'],source=source))
         for key,value in data.items():
             if key not in ('founder','employee') and isinstance(value,(list,dict)):
                 found.extend(people_from_structured(value,source))
