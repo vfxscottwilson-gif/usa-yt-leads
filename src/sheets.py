@@ -7,6 +7,8 @@ TRUNCATED = '... [TRUNCATED]'
 
 
 def sanitize_cell_value(value):
+    if isinstance(value, (list, tuple, set)):
+        value = ', '.join(str(item) for item in value if item is not None)
     if not isinstance(value, str):
         return value
     encoded = value.encode('utf-16-le', errors='replace')
@@ -269,125 +271,4 @@ class Sheets:
                 'sheetId': props['sheetId'], 'dimension': 'ROWS', 'length': rows - current + 100}}]})
             props['gridProperties']['rowCount'] = rows + 100
 
-    def append(self, title, records):
-        if not records:
-            return None
-        header = self.headers[title]
-        # Fail closed if a human or another process inserted/appended/reordered data after startup.
-        # This is detection, not a distributed lock; only one writer is supported.
-        live = self.read(title)
-        if not live or [str(h) for h in live[0]] != header:
-            raise SheetsError(f'{title}: headers changed during run; retry after edits finish')
-        live_ids = [dict(zip(header,r)).get('Contact ID') for r in live[1:]] if 'Contact ID' in header else None
-        cached_ids = [dict(zip(header,r)).get('Contact ID') for r in self.rows[title]] if live_ids is not None else None
-        if len(live)-1 != len(self.rows[title]) or live_ids != cached_ids:
-            # Someone edited the tab during the run (rows added, deleted or sorted). Appending at the real bottom
-            # never touches existing rows, so adopt the live rows and skip leads already present instead of crashing.
-            self.rows[title] = live[1:]
-            known = set(live_ids or [])
-            records = [r for r in records if not r.get('Contact ID') or r.get('Contact ID') not in known]
-            if not records:
-                return None
-        values = [[sanitize_cell_value(row.get(h, '')) for h in header] for row in records]
-        start = len(self.rows[title]) + 2
-        self.grow(title, start + len(values))
-        # Fixed ranges + exclusive workflow are idempotent on retries. Do not run multiple writers.
-        self.write(title, f'A{start}', values)
-        self.rows[title].extend(values)
-        if 'Channel ID' in header:
-            self.repair_ids(title, start)
-        return start, start + len(values) - 1
-
-    def repair_ids(self, title, start=2, end=None):
-        header = self.headers[title]
-        ids, channel = col(header.index('ID')+1), col(header.index('Channel ID')+1)
-        stop = end if end is not None else len(self.rows[title]) + 1
-        if stop > self.cfg['max_formula_rows']:
-            raise SheetsError('Formula row safety cap reached; increase max_formula_rows')
-        formulas = []
-        for r in range(start, stop+1):
-            # First appearance only. Later discoveries remain at the bottom with blank display ID.
-            formulas.append([f'=IF({channel}{r}="","",IF(COUNTIF({channel}$2:{channel}{r},{channel}{r})=1,'
-                f'COUNTUNIQUE(FILTER({channel}$2:{channel}{r},{channel}$2:{channel}{r}<>"")),""))'])
-        for offset in range(0, len(formulas), 300):
-            self.write(title, f'{ids}{start+offset}', formulas[offset:offset+300], formula=True)
-
-    def channel_ids(self, title):
-        """Channel IDs that are in the tab RIGHT NOW (live read, so rows you moved by hand are respected)."""
-        i = self.headers[title].index('Channel ID')
-        return {str(r[i]) for r in self.read(title)[1:] if len(r) > i and r[i]}
-
-    def remove_review_duplicates(self):
-        """One lead, one place: delete Needs Review rows whose channel is already in All Leads. Never touches All Leads."""
-        in_all = self.channel_ids('All Leads')
-        header, live = self.headers['Needs Review'], self.read('Needs Review')
-        if not live or [str(h) for h in live[0]] != header:
-            raise SheetsError('Needs Review: headers changed during run; retry after edits finish')
-        i = header.index('Channel ID')
-        doomed = sorted((n for n, r in enumerate(live[1:], 2) if len(r) > i and str(r[i]) in in_all), reverse=True)
-        if not doomed:
-            return 0
-        sid = self.tabs['Needs Review']['sheetId']
-        for start in range(0, len(doomed), 100):   # bottom rows first, so the remaining row numbers stay valid
-            self.call('POST', ':batchUpdate', body={'requests': [{'deleteDimension': {'range': {
-                'sheetId': sid, 'dimension': 'ROWS', 'startIndex': n - 1, 'endIndex': n}}} for n in doomed[start:start + 100]]})
-        gone = set(doomed)
-        self.rows['Needs Review'] = [r for n, r in enumerate(live[1:], 2) if n not in gone]
-        if self.rows['Needs Review'] and 'ID' in header:
-            self.repair_ids('Needs Review', 2)
-        return len(doomed)
-
-    def validate_identity(self, title):
-        header = self.headers[title]
-        live = self.read(title)
-        if not live or live[0] != header:
-            raise SheetsError('Headers changed during run; retry after edits finish')
-        actual = [dict(zip(header, row)).get('Contact ID') for row in live[1:]]
-        expected = [dict(zip(header, row)).get('Contact ID') for row in self.rows[title]]
-        if actual != expected:
-            # Rows moved since startup: re-read positions from the live tab so a status update can never hit the wrong row.
-            self.rows[title] = live[1:]
-
-    def patch_contact(self, title, contact, changes):
-        self.validate_identity(title)
-        header = self.headers[title]
-        for number, row in enumerate(self.rows[title], 2):
-            record = dict(zip(header, row))
-            if record.get('Contact ID') == contact:
-                for key, value in changes.items():
-                    self.write(title, f'{col(header.index(key)+1)}{number}', [[value]])
-                    while len(row) < len(header):
-                        row.append('')
-                    row[header.index(key)] = value
-
-    def patch_channel_status(self, cid, status, reason, checked):
-        data = []
-        for title in ['All Leads']+[n['name'] for n in self.niches]:
-            header = self.headers[title]
-            if any(dict(zip(header,row)).get('Channel ID') == cid for row in self.rows[title]):
-                self.validate_identity(title)
-            for number,row in enumerate(self.rows[title],2):
-                if dict(zip(header,row)).get('Channel ID') != cid:
-                    continue
-                for key,value in {'Current Qualification':status,'Qualification Checked At':checked,
-                                  'Review Reason':reason}.items():
-                    data.append({'range':f'{quote(title)}!{col(header.index(key)+1)}{number}','values':[[value]]})
-                    while len(row)<len(header):
-                        row.append('')
-                    row[header.index(key)] = value
-        for start in range(0,len(data),300):
-            self.call('POST','/values:batchUpdate',body={'valueInputOption':'RAW','data':data[start:start+300]})
-
-    def export_local(self, directory):
-        import csv
-        directory.mkdir(parents=True, exist_ok=True)
-        for title in ('All Leads', 'Needs Review', 'Daily Report'):
-            # Read evaluated formula results for exported snapshots, not the RAW-write cache.
-            live = self.read(title)
-            header, values = (live[0], live[1:]) if live else (self.headers[title], [])
-            with (directory / (title.replace(' ', '_') + '.csv')).open('w', newline='', encoding='utf-8-sig') as handle:
-                writer = csv.writer(handle)
-                writer.writerow(header)
-                for row in values:
-                    # CSV spreadsheet injection defense; RAW Sheets writes already avoid interpretation.
-                    writer.writerow(["'" + x if isinstance(x, str) and x.startswith(('=', '+', '-', '@')) else x for x in row])
+    def append(self
