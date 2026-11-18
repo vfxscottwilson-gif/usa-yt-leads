@@ -50,6 +50,7 @@ class LocateTests(unittest.TestCase):
 class EvaluateTests(unittest.TestCase):
     def setUp(self):
         self.cfg, _ = load()
+        self.cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         self.cfg['countries'] = ['GB']
         self.cfg.pop('require_script', None)   # these tests are about English channels whatever package this is
         self.cfg.pop('require_country_field', None)   # tested in test_filters; the USA package turns it on

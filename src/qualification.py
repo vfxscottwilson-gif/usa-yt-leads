@@ -33,17 +33,30 @@ def evaluate(channel, videos, complete, cfg, niches, confirmed=False):
         (failures if complete else reasons).append('Fewer than two sampled long videos meet view threshold')
     if len(active) < cfg['min_long_uploads']:
         (failures if complete else reasons).append('Insufficient long uploads in activity window')
+    # Consistency rules over the sampled long videos (videos newer than floor_min_age_days are not judged: a video posted
+    # yesterday has not had time to collect views):
+    #   1) floor: every judged video must have MORE than min_every_video_views (0 = off)
+    #   2) strong: at least strong_video_share of the judged videos (60% = 12 of 20) must reach strong_video_views (0 = off)
+    # A channel with fewer than min_judged_videos judged videos cannot be shown to be consistent, so it does not qualify.
+    floor = cfg.get('min_every_video_views', 0)
+    strong = cfg.get('strong_video_views', 0)
+    if floor or strong:
+        old_enough = utcnow() - timedelta(days=cfg.get('floor_min_age_days', 7))
+        judged = [v for v in sample if parse(v['published']) <= old_enough]
+        need_videos = cfg.get('min_judged_videos', 15)
+        if len(judged) < need_videos:
+            (failures if complete else reasons).append(f'Only {len(judged)} long videos old enough to judge (need {need_videos})')
+        else:
+            low = [v for v in judged if v['views'] <= floor] if floor else []
+            if low:
+                failures.append(f'{len(low)} of {len(judged)} sampled long videos have {floor:,} views or fewer')
+            if strong:
+                need = -(-round(cfg.get('strong_video_share', 0.6) * 100) * len(judged) // 100)   # ceil(share * n), no float drift
+                got = sum(v['views'] >= strong for v in judged)
+                if got < need:
+                    failures.append(f'Only {got} of {len(judged)} sampled long videos reach {strong:,} views (need {need})')
     # Country: banned regions and other countries are rejected outright (never reviewed). A channel with no country
     # field and no clear signal follows "unknown_country_policy": accept (default), review or reject.
-    # Floor: no sampled long video may sit under min_every_video_views. Videos newer than floor_min_age_days are skipped,
-    # because a video posted yesterday has not had time to collect views. A floor miss cannot be undone by more data.
-    floor = cfg.get('min_every_video_views', 0)
-    if floor:
-        old_enough = utcnow() - timedelta(days=cfg.get('floor_min_age_days', 7))
-        judged = [v for v in sample[:cfg.get('floor_sample_size', len(sample))] if parse(v['published']) <= old_enough]
-        low = [v for v in judged if v['views'] < floor]
-        if low:
-            failures.append(f'{len(low)} of {len(judged)} sampled long videos have under {floor:,} views')
     where, note = locate(channel, videos, cfg)
     location_note = ''
     # Evidence filters: fake country, AI-generated channels, unwanted topics. Rejected outright, never reviewed.

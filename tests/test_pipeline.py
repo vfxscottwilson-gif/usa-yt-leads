@@ -59,6 +59,7 @@ class FakeApi:
 class PipelineTests(unittest.TestCase):
     def test_later_discovered_contact_is_bottom_append_and_existing_lead_is_not_new(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         cfg['confirmed_talking_head_channel_ids']=[CID]
         sheet=FakeSheets(cfg,niches)
         emails=['first@example.org']
@@ -115,6 +116,7 @@ class StickyDecisionTests(unittest.TestCase):
 
     def test_channel_sitting_in_needs_review_is_not_added_to_all_leads(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         cfg['confirmed_talking_head_channel_ids']=[CID]
         sheet=FakeSheets(cfg,niches)
         sheet.append('Needs Review',[{'Channel ID':CID,'Contact ID':'old','Email':'old@example.org'}])
@@ -123,6 +125,7 @@ class StickyDecisionTests(unittest.TestCase):
 
     def test_channel_you_moved_to_all_leads_is_not_added_back_to_needs_review(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         cfg['require_talking_head_confirmation']=True      # makes this channel evaluate as Needs Review
         control=FakeSheets(cfg,niches)
         self.run_once(control,cfg,niches)
@@ -135,6 +138,7 @@ class StickyDecisionTests(unittest.TestCase):
 
     def test_existing_duplicate_in_needs_review_is_removed_and_nothing_comes_back(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         cfg['require_talking_head_confirmation']=True      # this channel would be sent to Needs Review
         sheet=FakeSheets(cfg,niches)
         sheet.append('All Leads',[{'Channel ID':CID,'Contact ID':'kept','Email':'kept@example.org'}])

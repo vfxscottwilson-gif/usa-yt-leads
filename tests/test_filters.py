@@ -100,30 +100,54 @@ class TopicTests(unittest.TestCase):
         self.assertEqual(excluded_topic(channel('Golf club reviews. Not about the NFL.'), [video('Driver review')], self.CFG)[0], 'ok')
 
 
-class EvaluateFloorTests(unittest.TestCase):
+class EvaluateConsistencyTests(unittest.TestCase):
+    """Rule: every judged video over 2,000 views, and 60% (12 of 20) at 10,000 or more."""
+
     def setUp(self):
         self.cfg, _ = load()
-        self.cfg.update(countries=['US'], unknown_country_policy='accept', min_every_video_views=5000, floor_sample_size=8)
+        self.cfg.update(countries=['US'], unknown_country_policy='accept', video_sample_size=20, min_every_video_views=2000,
+                        strong_video_views=10000, strong_video_share=0.6, min_judged_videos=15, floor_min_age_days=7)
         self.cfg.pop('require_country_field', None)
         self.cfg['excluded_topics'] = []
         self.niches = [dict(name='Real Estate', signals=['real estate'], queries=['q'], topics=[])]
 
     def vids(self, views):
-        return [video(f'Real estate advice {w}', days_ago=3 + 4 * i, views=v) for i, (v, w) in enumerate(zip(views, 'one two three four five six'.split()))]
+        words = 'alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november oscar papa quebec romeo sierra tango'.split()
+        return [video(f'Real estate {words[i % 20]} {i}', days_ago=8 + 1 * i, views=v) for i, v in enumerate(views)]
 
-    def test_every_video_over_the_floor_qualifies(self):
-        r = evaluate(channel('Real estate advice'), self.vids([30000, 25000, 9000, 8000, 7000, 6000]), True, self.cfg, self.niches)
-        self.assertEqual(r['status'], 'qualified')
+    def status(self, views, extra=None):
+        vids = self.vids(views) + (extra or [])
+        vids.sort(key=lambda v: v['published'], reverse=True)
+        return evaluate(channel('Real estate advice'), vids, True, self.cfg, self.niches)
 
-    def test_one_video_under_the_floor_is_rejected(self):
-        r = evaluate(channel('Real estate advice'), self.vids([30000, 25000, 900, 8000, 7000, 6000]), True, self.cfg, self.niches)
+    def test_twelve_of_twenty_over_ten_thousand_qualifies(self):
+        self.assertEqual(self.status([30000] * 12 + [2500] * 8)['status'], 'qualified')
+
+    def test_eleven_of_twenty_is_rejected(self):
+        r = self.status([30000] * 11 + [2500] * 9)
         self.assertEqual(r['status'], 'rejected')
-        self.assertIn('under 5,000 views', r['reason'])
+        self.assertIn('reach 10,000 views (need 12)', r['reason'])
+
+    def test_seven_or_ten_good_videos_is_rejected(self):
+        self.assertEqual(self.status([30000] * 7 + [2500] * 13)['status'], 'rejected')
+        self.assertEqual(self.status([30000] * 10 + [2500] * 10)['status'], 'rejected')
+
+    def test_one_video_at_or_under_the_floor_is_rejected(self):
+        r = self.status([30000] * 12 + [2500] * 7 + [1500])
+        self.assertEqual(r['status'], 'rejected')
+        self.assertIn('2,000 views or fewer', r['reason'])
+        self.assertEqual(self.status([30000] * 12 + [2500] * 7 + [2000])['status'], 'rejected')   # "more than 2,000"
 
     def test_a_video_posted_yesterday_is_not_judged(self):
-        vids = self.vids([30000, 25000, 9000, 8000, 7000, 6000])
-        vids.insert(0, video('Real estate fresh upload', days_ago=1, views=120))
-        self.assertEqual(evaluate(channel('Real estate advice'), vids, True, self.cfg, self.niches)['status'], 'qualified')
+        fresh = [video('Real estate fresh upload', days_ago=1, views=90)]
+        self.assertEqual(self.status([30000] * 12 + [2500] * 8, fresh)['status'], 'qualified')
+
+    def test_channel_with_too_few_old_enough_videos_is_rejected(self):
+        self.assertEqual(self.status([30000] * 12)['status'], 'rejected')    # only 12 long videos to judge, 15 needed
+
+    def test_eighteen_videos_need_eleven(self):
+        self.assertEqual(self.status([30000] * 11 + [2500] * 7)['status'], 'qualified')
+        self.assertEqual(self.status([30000] * 10 + [2500] * 8)['status'], 'rejected')
 
 
 if __name__ == '__main__':

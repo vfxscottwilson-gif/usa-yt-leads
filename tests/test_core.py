@@ -28,24 +28,21 @@ def video(views=25000, days=3, seconds=600):
 class QualificationTests(unittest.TestCase):
     def setUp(self):
         self.cfg,self.niches=load()
+        self.cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
 
     def check(self, videos, **kwargs):
         return evaluate(channel(),videos,kwargs.get('complete',True),self.cfg,self.niches,kwargs.get('confirmed',True))
 
-    def test_two_strong_videos_qualify_when_every_video_clears_the_floor(self):
-        values=[video(25000,3),video(40000,7),video(6000,11),video(5500,15),video(5000,20)]
+    def test_two_strong_videos_qualify_even_if_median_is_low(self):
+        values=[video(25000,3),video(40000,7),video(1000,11),video(1000,15),video(1000,20)]
         self.assertEqual(self.check(values)['status'],'qualified')
-
-    def test_one_video_under_the_floor_is_rejected_even_with_two_strong_ones(self):
-        values=[video(25000,3),video(40000,7),video(1000,11),video(6000,15),video(6000,20)]
-        self.assertEqual(self.check(values)['status'],'rejected')
 
     def test_one_strong_video_is_rejected(self):
         self.assertEqual(self.check([video(25000,3),video(1000,7),video(1000,12)])['status'],'rejected')
 
     def test_two_uploads_fail_three_uploads_pass(self):
         self.assertEqual(self.check([video(days=3),video(days=9)])['status'],'rejected')
-        self.assertEqual(self.check([video(days=3),video(days=9),video(6000,15)])['status'],'qualified')
+        self.assertEqual(self.check([video(days=3),video(days=9),video(1000,15)])['status'],'qualified')
 
     def test_shorts_do_not_count_as_uploads_or_successful_views(self):
         values=[video(1000000,1,60),video(1000000,2,180),video(25000,3),video(25000,6)]
@@ -116,6 +113,7 @@ class ContactTests(unittest.TestCase):
 
     def test_all_addresses_have_separate_rows_and_no_inferred_name(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         evaluation=evaluate(channel(),[video(days=3),video(days=8),video(days=13)],True,cfg,niches,True)
         result={'contacts':{},'links':{},'phones':[],'team_pages':[],'people':[]}
         for email in ['oliver@example.org','info@example.org','creator@gmail.com']:
@@ -128,6 +126,7 @@ class ContactTests(unittest.TestCase):
 
     def test_uncertain_email_keeps_a_qualified_channel_qualified(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         evaluation=evaluate(channel(),[video(days=3),video(days=8),video(days=13)],True,cfg,niches,True)
         result={'contacts':{},'links':{},'phones':[],'team_pages':[],'people':[]}
         Research.add(result,'maybe@example.org','https://site.org',False,'Unclear relationship')
@@ -138,6 +137,7 @@ class ContactTests(unittest.TestCase):
 class SheetTests(unittest.TestCase):
     def test_new_sheet_grid_expands_before_wide_headers(self):
         cfg,niches=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         sheet=object.__new__(Sheets)
         sheet.cfg,sheet.niches=cfg,niches
         sheet.headers,sheet.rows={},{}
@@ -203,6 +203,7 @@ class SheetTests(unittest.TestCase):
 class ApiTests(unittest.TestCase):
     def test_search_budget_stops_before_call(self):
         cfg,_=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         from unittest.mock import Mock
         api=YouTube('fake',cfg,Counter(search_calls=cfg['max_searches']),session=Mock())
         with self.assertRaises(BudgetStop):
@@ -211,6 +212,7 @@ class ApiTests(unittest.TestCase):
 
     def test_upload_pagination_goes_past_shorts(self):
         cfg,_=load()
+        cfg.update(min_every_video_views=0, strong_video_views=0)   # the new view rules are tested in test_filters.py; these tests are about other things
         api=YouTube('fake',cfg,Counter(),session=object())
         pages=iter([
             {'items':[{'contentDetails':{'videoId':'short'}}], 'nextPageToken':'page2'},

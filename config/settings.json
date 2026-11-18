@@ -19,7 +19,7 @@
   "min_long_uploads": 3,
   "preferred_long_uploads": 4,
   "long_video_min_seconds_exclusive": 180,
-  "video_sample_size": 10,
+  "video_sample_size": 20,
   "min_video_views": 20000,
   "min_videos_above_threshold": 2,
   "max_upload_pages": 2,
@@ -39,7 +39,7 @@
   ],
   "recheck_fraction": 0.1,
   "accepted_contact_refresh_days": 25,
-  "rule_version": 5,
+  "rule_version": 6,
   "require_talking_head_confirmation": false,
   "confirmed_talking_head_channel_ids": [],
   "people": {},
@@ -71,8 +71,7 @@
   "youtube_panel_enabled": true,
   "youtube_panel_max_per_run": 100,
   "browser_hard_timeout_seconds": 30,
-  "min_every_video_views": 5000,
-  "floor_sample_size": 8,
+  "min_every_video_views": 2000,
   "floor_min_age_days": 7,
   "foreign_signals": {
     "enabled": true,
@@ -156,5 +155,8 @@
       ]
     }
   ],
-  "require_country_field": true
+  "require_country_field": true,
+  "strong_video_views": 10000,
+  "strong_video_share": 0.6,
+  "min_judged_videos": 15
 }
