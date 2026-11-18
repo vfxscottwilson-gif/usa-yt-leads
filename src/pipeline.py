@@ -64,6 +64,9 @@ def build_rows(channel, evaluation, research, cfg, run_id, now):
         extra.pop('Suggested Editing Quote', None)
     base.update(extra)
     base.update(owner_cells)
+    gap = enrich.social_gap_note(research)
+    if gap:
+        base['Notes'] = base['Notes'].rstrip() + ' ' + gap
     own_domains, title = research.get('own_domains', []), channel['snippet'].get('title', '')
     contacts = enrich.sort_contacts(list(research['contacts'].values()), own_domains, title) or [dict(email='',source='',supported=True,
             evidence='No public email located within research budget')]

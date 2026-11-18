@@ -22,7 +22,7 @@ SOCIALS = {'instagram.com': 'Instagram', 'facebook.com': 'Facebook', 'linkedin.c
 # Links in the About panel that are not the creator's website: meeting booking and podcast-listening apps.
 NOT_WEBSITE = re.compile(r'calendly\.com|cal\.com|savvycal|tidycal|zoom\.us|acuityscheduling|meetings\.hubspot|youcanbook|chilipiper|setmore|podcasts\.apple|music\.apple|spotify\.com|overcast\.fm|pocketcasts|castbox|iheart\.com|audible\.com|amazon\.|amzn\.', re.I)
 SKIP = {'youtube.com', 'youtu.be', 'google.com', 'amazon.com', 'amzn.to', 'bit.ly',
-        'twitter.com', 'x.com', 'tiktok.com', 'discord.gg'}
+        'twitter.com', 'x.com', 'tiktok.com', 'discord.gg', 'fb.com', 'fb.me', 'lnkd.in'}
 BIO = {'linktr.ee', 'beacons.ai', 'stan.store', 'bio.link'}
 
 def clean_url(url, base=''):
@@ -70,7 +70,13 @@ YT_CHANNEL = re.compile(r'https?://(?:www\.|m\.)?youtube\.com/(channel/UC[\w-]{2
 
 
 def record_link(result, url, source):
-    url = canonical_profile(clean_url(url))
+    raw = clean_url(url)
+    if raw and host(raw) == 'lnkd.in':   # a LinkedIn short link cannot be resolved safely: list it, never a LinkedIn column
+        existing = [v for v in result['links'].get('All Discovered Links', '').splitlines() if v]
+        if raw not in existing:
+            result['links']['All Discovered Links'] = '\n'.join(existing + [raw])
+        return
+    url = canonical_profile(raw)
     if not url:
         return
     parts = urlsplit(url)

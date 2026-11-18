@@ -271,6 +271,18 @@ def button_state(panel):
     return state if state in ('Button Present', 'No Button') else 'Not Checked'
 
 
+def social_gap_note(research):
+    """Why LinkedIn / Facebook may be empty: the YouTube About panel could not be read this time."""
+    status = research.get('panel_status', '')
+    if not status or status in ('ok', 'partial'):
+        return ''
+    links = research.get('links', {})
+    missing = [n for n in ('LinkedIn', 'Facebook') if not links.get(n)]
+    if not missing:
+        return ''
+    return f"{' and '.join(missing)} empty: YouTube About panel was not read (status: {status}), so links there could not be seen."
+
+
 def manual_check(state, contacts, own_domains=(), channel_title=''):
     """Flag leads a human should open once: a protected YouTube email exists and no personal email is known."""
     has_personal = any(classify_email(c.get('email', ''), own_domains, channel_title) == 'Personal' for c in contacts)
@@ -341,6 +353,7 @@ def finalize(research, result, channel, panel, trusted_domains, sites):
         own.add((urlsplit(website).hostname or '').lower().removeprefix('www.'))
     result['own_domains'] = sorted(own)
     result['youtube_business_email'] = button_state(panel)
+    result['panel_status'] = (panel or {}).get('status', 'disabled')
     candidates = list(result.get('owner_candidates', []))
     if search_enabled(cfg):
         for url in search_urls(title, cfg)[:int(cfg.get('search_api_results', 5))]:
