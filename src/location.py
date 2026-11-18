@@ -1,7 +1,7 @@
 """Decide where a channel is based, and keep banned countries out completely.
 
 Order of trust: YouTube's own country field, then the channel's text (place names, web address endings, video language,
-writing script), then, only for banned regions, the creator's name. Banned channels are rejected: they never reach
+writing script), and the channel's own details. A person's name is never used. Banned channels are rejected: they never reach
 All Leads or Needs Review.
 """
 import re
@@ -35,20 +35,6 @@ HINTS = {
 BANNED_LANGUAGES = {'hi', 'ur', 'bn', 'ta', 'te', 'ml', 'kn', 'mr', 'gu', 'pa'}
 OTHER_LANGUAGE_REGIONS = {'IN', 'PK', 'BD', 'NG', 'PH', 'KE', 'LK'}
 CYRILLIC = re.compile(r'[а-яёА-ЯЁ]')
-# Common South Asian given names and family names. Used ONLY when the channel has no country and no sign of a target country.
-SOUTH_ASIAN_NAMES = set('''
-singh kumar sharma gupta verma yadav khan ahmed ahmad hussain hossain rahman begum akhtar iqbal sheikh shaikh malik chaudhry
-chowdhury patel shah reddy naidu nair iyer iyengar pillai menon joshi mehta desai banerjee chatterjee mukherjee bhatt bhatia
-kapoor chopra agarwal aggarwal jain mishra pandey tiwari dubey saxena srivastava thakur rathore chauhan rajput siddiqui ansari
-qureshi mirza baig butt cheema gill sandhu dhillon grewal sidhu bajwa awan rana raja
-rahul amit ankit rohit vikram priya pooja neha sachin ravi sunil anil ajay vijay suresh ramesh mahesh deepak manish nikhil akash
-aakash arjun kapil sanjay sandeep rajesh rajat varun vivek abhishek shubham gaurav mohit tushar harsh yash ritesh muhammad
-mohammad mohammed muhammed imran usman bilal hamza faisal zubair tariq irfan asif kamran shahid sajid waqar arif naveen
-praveen karthik sundar lakshmi anjali shreya divya kavita sunita rekha simran harpreet gurpreet jaspreet manpreet tanveer
-saleem salman shoaib junaid hassan hasan hussein farhan zeeshan adnan nadeem rizwan shehzad shahzad babar waseem
-'''.split())
-
-
 def _matches(code, text, hints):
     spec = hints.get(code)
     if not spec:
@@ -56,11 +42,6 @@ def _matches(code, text, hints):
     if any(re.search(r'\.' + re.escape(t) + r'(?:[/\s"\'>)\],]|$)', text) for t in spec.get('tld', [])):
         return True
     return any(re.search(r'(?<![\w])' + re.escape(w) + r'(?![\w])', text) for w in spec.get('words', []))
-
-
-def _name_looks_banned(title):
-    tokens = re.findall(r"[a-z]+", title.lower())
-    return any(t in SOUTH_ASIAN_NAMES for t in tokens)
 
 
 def locate(channel, videos, cfg):
@@ -73,6 +54,8 @@ def locate(channel, videos, cfg):
         if country in banned:
             return 'reject', f'Banned country ({country})'
         return ('accept', 'country set on channel') if country in targets else ('reject', f'Channel country is {country}')
+    if cfg.get('require_country_field'):     # strictest mode: only channels that name the target country themselves
+        return 'reject', 'No country set on the channel'
     hints = {**HINTS, **cfg.get('country_hints', {})}
     text = ' '.join([snippet.get('title', ''), snippet.get('description', '')]
                     + [v.get('title', '') + ' ' + v.get('description', '') for v in videos[:10]]).lower()
@@ -97,7 +80,6 @@ def locate(channel, videos, cfg):
         return 'reject', 'Location signals point to ' + '/'.join(sorted(negative)) + ', not ' + '/'.join(sorted(targets))
     if positive and not negative:
         return 'accept', 'location inferred from channel text or language'
-    # 2) the creator's name is only used to keep banned regions out, never to let anyone in
-    if not positive and _name_looks_banned(snippet.get('title', '')):
-        return 'reject', 'Channel name looks South Asian and no country is set'
+    # A person's name is never used to decide anything (it says nothing reliable about where they live). With no country
+    # and no clear signal the verdict is 'unknown' and "unknown_country_policy" decides.
     return 'unknown', ''

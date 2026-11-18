@@ -476,27 +476,6 @@
     ]
   },
   {
-    "name": "Outdoor And Sports Reviews",
-    "topics": [
-      "Outdoor Gear Reviews",
-      "Sports Equipment Reviews"
-    ],
-    "queries": [
-      "outdoor gear reviewer",
-      "camping equipment review presenter",
-      "golf equipment reviewer",
-      "sports equipment review comparison"
-    ],
-    "signals": [
-      "outdoor gear",
-      "camping gear",
-      "hiking gear review",
-      "golf club review",
-      "sports equipment",
-      "tennis racket review"
-    ]
-  },
-  {
     "name": "Photography Businesses",
     "topics": [
       "Photography Education"

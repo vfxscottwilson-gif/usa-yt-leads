@@ -79,7 +79,8 @@ class YouTube:
             page = self.get('playlistItems', **params)
             ids = [x['contentDetails']['videoId'] for x in page.get('items', [])]
             if ids:
-                data = self.get('videos', part='snippet,statistics,contentDetails', id=','.join(ids))
+                # 'status' adds containsSyntheticMedia (YouTube's AI/altered-content label) at no extra quota cost
+                data = self.get('videos', part='snippet,statistics,contentDetails,status', id=','.join(ids))
                 for item in data.get('items', []):
                     # Ongoing streams have no stable duration and are not upload evidence.
                     if item['snippet'].get('liveBroadcastContent') in ('live', 'upcoming'):
@@ -89,6 +90,7 @@ class YouTube:
                         published=item['snippet']['publishedAt'],
                         language=item['snippet'].get('defaultAudioLanguage') or item['snippet'].get('defaultLanguage', ''),
                         seconds=duration(item['contentDetails'].get('duration', '')),
+                        synthetic=bool(item.get('status', {}).get('containsSyntheticMedia')),
                         views=int(item.get('statistics', {}).get('viewCount', 0))))
             token = page.get('nextPageToken')
             longs = [v for v in videos if v['seconds'] > self.cfg['long_video_min_seconds_exclusive']]

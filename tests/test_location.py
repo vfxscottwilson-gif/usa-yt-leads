@@ -33,8 +33,8 @@ class LocateTests(unittest.TestCase):
         self.assertEqual(locate(channel('hello'), [video('en-IN')], CFG)[0], 'reject')
         self.assertEqual(locate(channel('Dhaka tips and London visits'), [], CFG)[0], 'reject')  # banned wins over target
 
-    def test_south_asian_name_is_rejected_only_with_no_target_signal(self):
-        self.assertEqual(locate(channel('Business tips', title='Rahul Sharma'), [], CFG)[0], 'reject')
+    def test_a_persons_name_never_decides_anything(self):
+        self.assertEqual(locate(channel('Business tips', title='Rahul Sharma'), [], CFG)[0], 'unknown')
         self.assertEqual(locate(channel('Based in London', title='Rahul Sharma'), [], CFG)[0], 'accept')
 
     def test_target_signals_and_unknown(self):
@@ -52,6 +52,7 @@ class EvaluateTests(unittest.TestCase):
         self.cfg, _ = load()
         self.cfg['countries'] = ['GB']
         self.cfg.pop('require_script', None)   # these tests are about English channels whatever package this is
+        self.cfg.pop('require_country_field', None)   # tested in test_filters; the USA package turns it on
         self.cfg['unknown_country_policy'] = 'accept'
         self.niches = [dict(name='Real Estate', signals=['real estate'], queries=['q'], topics=[])]
         self.vids = [video() for _ in range(4)]

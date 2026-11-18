@@ -32,16 +32,20 @@ class QualificationTests(unittest.TestCase):
     def check(self, videos, **kwargs):
         return evaluate(channel(),videos,kwargs.get('complete',True),self.cfg,self.niches,kwargs.get('confirmed',True))
 
-    def test_two_strong_videos_qualify_even_if_median_is_low(self):
-        values=[video(25000,3),video(40000,7),video(1000,11),video(1000,15),video(1000,20)]
+    def test_two_strong_videos_qualify_when_every_video_clears_the_floor(self):
+        values=[video(25000,3),video(40000,7),video(6000,11),video(5500,15),video(5000,20)]
         self.assertEqual(self.check(values)['status'],'qualified')
+
+    def test_one_video_under_the_floor_is_rejected_even_with_two_strong_ones(self):
+        values=[video(25000,3),video(40000,7),video(1000,11),video(6000,15),video(6000,20)]
+        self.assertEqual(self.check(values)['status'],'rejected')
 
     def test_one_strong_video_is_rejected(self):
         self.assertEqual(self.check([video(25000,3),video(1000,7),video(1000,12)])['status'],'rejected')
 
     def test_two_uploads_fail_three_uploads_pass(self):
         self.assertEqual(self.check([video(days=3),video(days=9)])['status'],'rejected')
-        self.assertEqual(self.check([video(days=3),video(days=9),video(1000,15)])['status'],'qualified')
+        self.assertEqual(self.check([video(days=3),video(days=9),video(6000,15)])['status'],'qualified')
 
     def test_shorts_do_not_count_as_uploads_or_successful_views(self):
         values=[video(1000000,1,60),video(1000000,2,180),video(25000,3),video(25000,6)]

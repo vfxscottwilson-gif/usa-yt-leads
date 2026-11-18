@@ -2,6 +2,7 @@ import re
 from datetime import timedelta
 from .models import parse, utcnow
 from .location import locate
+from .filters import fake_country, ai_slop, excluded_topic
 
 def duration(value):
     match = re.fullmatch(r'P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', value)
@@ -34,8 +35,23 @@ def evaluate(channel, videos, complete, cfg, niches, confirmed=False):
         (failures if complete else reasons).append('Insufficient long uploads in activity window')
     # Country: banned regions and other countries are rejected outright (never reviewed). A channel with no country
     # field and no clear signal follows "unknown_country_policy": accept (default), review or reject.
+    # Floor: no sampled long video may sit under min_every_video_views. Videos newer than floor_min_age_days are skipped,
+    # because a video posted yesterday has not had time to collect views. A floor miss cannot be undone by more data.
+    floor = cfg.get('min_every_video_views', 0)
+    if floor:
+        old_enough = utcnow() - timedelta(days=cfg.get('floor_min_age_days', 7))
+        judged = [v for v in sample[:cfg.get('floor_sample_size', len(sample))] if parse(v['published']) <= old_enough]
+        low = [v for v in judged if v['views'] < floor]
+        if low:
+            failures.append(f'{len(low)} of {len(judged)} sampled long videos have under {floor:,} views')
     where, note = locate(channel, videos, cfg)
     location_note = ''
+    # Evidence filters: fake country, AI-generated channels, unwanted topics. Rejected outright, never reviewed.
+    for verdict, why in (fake_country(channel, videos, cfg), ai_slop(channel, videos, sample, cfg), excluded_topic(channel, sample, cfg)):
+        if verdict == 'reject':
+            failures.append(why)
+        elif verdict == 'review':
+            reasons.append(why)
     if where == 'reject':
         failures.append(note)
     elif where == 'unknown':
