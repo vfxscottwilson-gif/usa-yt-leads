@@ -7,6 +7,7 @@ from .config import ROOT, load
 from .contacts import Research
 from .discovery import discover
 from .names import infer_person, guess_email
+from . import enrich
 from .scoring import assess
 from .models import contact_id, iso, next_delay, parse, utcnow
 from .qualification import precheck, evaluate
@@ -17,16 +18,26 @@ from .youtube import YouTube, BudgetStop, YouTubeError
 def build_rows(channel, evaluation, research, cfg, run_id, now):
     cid = channel['id']
     person = cfg['people'].get(cid, {})
+    owner = research.get('owner') or {}
+    if not person and owner:   # proven owner (own page, or two independent sources): see src/enrich.py
+        person = dict(full_name=owner['full_name'], first_name=owner.get('first_name', ''),
+                      designation=owner.get('designation', ''), source=owner['source'])
     if not person and research.get('people'):
         person = research['people'][0]
     # Manually researched people must include a source, never infer identity from email usernames.
     full_name = person.get('full_name', '') if person.get('source') else ''
     first_name = (person.get('first_name') or full_name.split(' ')[0]) if full_name else ''
     person_source = person.get('source', '')
-    if not full_name:  # fall back to a real first name found in the channel title ("Travel with Dave" -> Dave)
+    if not full_name and cfg.get('infer_name_from_title', False):  # legacy guess, OFF by default
         first_name, full_name = infer_person(channel['snippet']['title'])
         person_source = 'Inferred from channel title' if full_name else ''
-    guess = guess_email(first_name, research.get('guess_domain', ''))
+    guess = guess_email(first_name, research.get('guess_domain', '')) if cfg.get('guess_email', False) else ''
+    if owner and owner['full_name'] == full_name:
+        owner_cells = {'Owner Name':owner['full_name'], 'Owner Name Source':owner['source'], 'Owner Name Evidence':owner['evidence']}
+    elif full_name and person.get('source') and cid in cfg['people']:
+        owner_cells = {'Owner Name':full_name, 'Owner Name Source':person_source, 'Owner Name Evidence':'Researched by hand (config people)'}
+    else:
+        owner_cells = {'Owner Name':'', 'Owner Name Source':'', 'Owner Name Evidence':''}
     base = {'Channel Name':channel['snippet']['title'], 'Full Name':full_name or 'Team',
         'First Name':first_name or 'Team', 'Guessed Email':guess,
         'Designation':person.get('designation', '') if full_name else '',
@@ -52,12 +63,18 @@ def build_rows(channel, evaluation, research, cfg, run_id, now):
     if cfg['quote_base_usd']:  # a fixed quote set in settings wins over the estimate
         extra.pop('Suggested Editing Quote', None)
     base.update(extra)
-    contacts = list(research['contacts'].values()) or [dict(email='',source='',supported=True,
+    base.update(owner_cells)
+    own_domains, title = research.get('own_domains', []), channel['snippet'].get('title', '')
+    contacts = enrich.sort_contacts(list(research['contacts'].values()), own_domains, title) or [dict(email='',source='',supported=True,
             evidence='No public email located within research budget')]
+    button = research.get('youtube_business_email', 'Not Checked')
+    base.update({'YouTube Business Email':button,
+        'Manual Check':enrich.manual_check(button, research['contacts'].values(), own_domains, title)})
     result = []
     for contact in contacts:
         row = dict(base)
         row.update({'Email':contact['email'], 'Contact Source':contact['source'],
+            'Email Type':enrich.classify_email(contact['email'], own_domains, title), 'Email Source':contact['source'],
             'Evidence Note':contact['evidence'] +
                 ('; Person source: ' + person_source + '; named person is not proven inbox owner' if full_name else '') +
                 ('; Guessed Email is an unverified first-name pattern' if guess else ''),

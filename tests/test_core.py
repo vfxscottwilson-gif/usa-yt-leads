@@ -122,7 +122,7 @@ class ContactTests(unittest.TestCase):
         self.assertEqual(len(rows),3)
         self.assertTrue(all(r['Full Name']=='Team' for r in rows))
         self.assertTrue(all(r['YouTube Link'] for r in rows))
-        self.assertNotIn('Email Type',HEADERS)
+        self.assertIn('Email Type',HEADERS)
 
     def test_uncertain_email_keeps_a_qualified_channel_qualified(self):
         cfg,niches=load()
@@ -197,8 +197,10 @@ class SheetTests(unittest.TestCase):
         sheet=self.fake()
         sheet.append('All Leads',[{'Channel ID':CID}])
         formula=sheet.writes[-1][1][0][0]
-        # Reversed header puts Channel ID at C, not a hard-coded D column.
-        self.assertIn('C$2:C2',formula)
+        # Reversed header puts Channel ID at a computed column, not a hard-coded D column.
+        from src.sheets import col
+        letter=col(list(reversed(HEADERS)).index('Channel ID')+1)
+        self.assertIn(f'{letter}$2:{letter}2',formula)
 
 class ApiTests(unittest.TestCase):
     def test_search_budget_stops_before_call(self):

@@ -11,6 +11,11 @@ HEADERS = ['ID', 'Channel Name', 'First Name', 'Full Name', 'Designation', 'Emai
            'Current Qualification', 'Qualification Checked At', 'Review Reason', 'Review Decision',
            'Channel ID', 'Contact ID', 'Run ID']
 
+# Evidence-backed owner / email columns; always appended after the original columns.
+ENRICH_HEADERS = ['Owner Name', 'Owner Name Source', 'Owner Name Evidence', 'Email Type', 'Email Source',
+                  'YouTube Business Email', 'Manual Check']
+HEADERS = HEADERS + ENRICH_HEADERS
+
 REPORT_HEADERS = ['ID', 'Run ID', 'Worker', 'Niche', 'Start Time', 'End Time',
  'Duration Seconds', 'Search Calls', 'Other API Calls', 'Quota Units', 'Retries',
  'Failed Requests', 'Results Received', 'Unique Channels Found', 'Duplicates Skipped',

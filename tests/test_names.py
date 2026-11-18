@@ -39,6 +39,7 @@ class RowTests(unittest.TestCase):
         from src.config import load
         from src.models import utcnow
         cfg, _ = load()
+        cfg.update(infer_name_from_title=True, guess_email=True)   # legacy behaviour, both OFF by default now
         channel = {'id': 'UCx', 'snippet': {'title': 'Dave Asprey'}, 'statistics': {'subscriberCount': '330000'}}
         ev = dict(niche='Health', videos_checked=20, videos_above=5, average_views=9000, active=[1, 2, 3],
                   last_upload='2026-11-01', reason='')

@@ -72,7 +72,9 @@ def collect_panel(page):
     protected = bool(re.search(r'view email address|sign in to (?:view|see).*email',text,re.I))
     return {'status':'partial' if protected else 'ok',
         'reason':'Protected email control left untouched' if protected else 'Visible public About details collected',
-        'emails':sorted(set(EMAIL.findall(text))), 'links':normalized[:40]}
+        'emails':sorted(set(EMAIL.findall(text))), 'links':normalized[:40],
+        # Detection only. The CAPTCHA-protected email control is left untouched.
+        'email_button':'Button Present' if re.search(r'view email address',text,re.I) else 'No Button'}
 
 
 def fetch_channel(channel_id, cfg):

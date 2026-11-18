@@ -1,6 +1,6 @@
 import json
 import time
-from .models import HEADERS, REPORT_HEADERS, utcnow
+from .models import HEADERS, REPORT_HEADERS, ENRICH_HEADERS, utcnow
 
 CELL_LIMIT = 49500
 TRUNCATED = '... [TRUNCATED]'
@@ -180,7 +180,7 @@ class Sheets:
                         self.write(title, f'A{start + 2}', body[start:start + 300])
                     values, aligned = [header] + body, True
                     print(f'Aligned {title} to the master header ({len(body)} rows)', flush=True)
-            new_fields = {'Score','Tier','Pitch Angle','Guessed Email','Personal LinkedIn','Company LinkedIn','Twitter And X','All Discovered Links','Link Sources','Scrapling Pages','Scrapling Failures','Browser Pages','Browser Failures','YouTube Panel Checks','YouTube Panel Blocks','YouTube Panel Timeouts'}
+            new_fields = {'Score','Tier','Pitch Angle','Guessed Email','Personal LinkedIn','Company LinkedIn','Twitter And X','All Discovered Links','Link Sources','Scrapling Pages','Scrapling Failures','Browser Pages','Browser Failures','YouTube Panel Checks','YouTube Panel Blocks','YouTube Panel Timeouts'} | set(ENRICH_HEADERS)
             missing = [h for h in expected if h not in header]
             if missing and set(missing).issubset(new_fields) and len(header)==len(set(header)):
                 header += missing

@@ -12,6 +12,7 @@ from urllib.parse import urljoin, urlsplit, unquote
 from .social_links import canonical_profile
 from .names import email_allowed, domain_matches_name, people_from_text
 from .task_runner import run_browser_task
+from . import enrich
 
 EMAIL = re.compile(r'[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}')
 URL = re.compile(r'https?://[^\s<>\"\)]+')
@@ -114,11 +115,14 @@ class Page(HTMLParser):
         self.hidden = 0
         self.structured = []
         self.ld_buffer = None
+        self.meta = []
 
     def handle_starttag(self, tag, attrs):
         if tag in ('script', 'style', 'noscript'):
             self.hidden += 1
         values = dict(attrs)
+        if tag == 'meta' and values.get('name', '').lower() in ('author', 'article:author') and values.get('content'):
+            self.meta.append(values['content'])
         if tag == 'script' and values.get('type','').lower() == 'application/ld+json':
             self.ld_buffer = ''
         target = values.get('href', '')
@@ -315,6 +319,7 @@ class Research:
         channel_url = 'https://www.youtube.com/channel/' + channel['id']
         blobs = [(description, channel_url)] + [(v['description'], 'https://www.youtube.com/watch?v=' + v['id'])
                                                    for v in videos[:20]]
+        result['owner_candidates'] = enrich.candidates_from_descriptions(blobs)
         for text, source in blobs:
             for match in EMAIL.finditer(html.unescape(text)):
                 context = text[max(0, match.start()-120):match.end()+120]
@@ -407,6 +412,7 @@ class Research:
                             blocked.add(host(source))
                         continue
                     text = ' '.join(page.text)
+                    result['owner_candidates'].extend(enrich.candidates_from_page(page, source, enrich.page_kind(source, trusted_domains, BIO)))
                     for data in page.structured:
                         if host(source) in trusted_domains:
                             result['people'].extend(people_from_structured(data,source))
@@ -456,6 +462,7 @@ class Research:
         # Guess domain: the creator's own site only (stated as 'my website', or its name matches the channel).
         result['guess_domain'] = next((d for d in list(trusted_domains) + [host(u) for u in sites]
                                        if d and (d in trusted_domains or domain_matches_name(d, title))), '')
+        enrich.finalize(self, result, channel, panel, trusted_domains, sites)
         return result
 
     @staticmethod
