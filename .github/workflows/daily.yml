@@ -1,10 +1,8 @@
 name: USA YT Leads
 on:
   schedule:
-    # 3 runs a day (UTC). Each run uses about a third of the daily YouTube quota; GitHub may start them a few minutes late.
+    # 1 run a day at 03:30 UTC (8:30 AM Pakistan Time, UTC+5). GitHub may start it a few minutes late.
     - cron: '30 3 * * *'
-    - cron: '30 11 * * *'
-    - cron: '30 19 * * *'
   workflow_dispatch:
 permissions:
   contents: read
